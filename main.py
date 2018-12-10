@@ -9,11 +9,14 @@ Game ideas:
 Walls closing in on player
 
 '''
-import pygame as pg
 import random
+from os import path
+
+import pygame as pg
+
 from settings import *
 from sprites import *
-from os import path
+
 
 class Game:
     def __init__(self):
@@ -66,6 +69,9 @@ class Game:
         self.platforms = pg.sprite.Group()
         # add powerups
         self.powerups = pg.sprite.Group()
+
+        # create Moving platforms group
+        self.mlatforms = pg.sprite.Group()
         
         self.mob_timer = 0
         # add a player 1 to the group
@@ -82,6 +88,14 @@ class Game:
             # no longer needed because we pass in Sprite lib file
             # self.all_sprites.add(p)
             # self.platforms.add(p)
+        
+        for mlat in MLATFORM_LIST:
+           
+            Mlatform(self, *mlat)
+            # no longer needed because we pass in Sprite lib file
+            # self.all_sprites.add(p)
+            # self.platforms.add(p)
+        
     
         # load music
 
@@ -106,7 +120,7 @@ class Game:
         # shall we spawn a mob?
         now = pg.time.get_ticks()
         if now - self.mob_timer > 5000 + random.choice([-1000, -500, 0, 500, 1000]):
-            self.mob_timer = now
+            self.mob_timer = now    
             Mob(self)
         # check for mob collisions
         mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
@@ -137,6 +151,20 @@ class Game:
                         self.player.pos.y = find_lowest.rect.top
                         self.player.vel.y = 0
                         self.player.jumping = False
+            hits = pg.sprite.spritecollide(self.player, self.mlatforms, False)
+            if hits:
+                # set var to be current hit in list to find which to 'pop' to when two or more collide with player
+                find_lowest = hits[0]
+                for hit in hits:
+                    if hit.rect.bottom > find_lowest.rect.bottom:
+                        print("hit rect bottom " + str(hit.rect.bottom))
+                        find_lowest = hit
+                # fall if center is off platform
+                if self.player.pos.x < find_lowest.rect.right + 10 and self.player.pos.x > find_lowest.rect.left - 10:
+                    if self.player.pos.y < find_lowest.rect.centery:
+                        self.player.pos.y = find_lowest.rect.top
+                        self.player.vel.y = 0
+                        self.player.jumping = False    
                 # scroll plats with player
         if self.player.rect.top <= HEIGHT / 4:
             # creates slight scroll at the top based on player y velocity
@@ -145,11 +173,18 @@ class Game:
             for mob in self.mobs:
                 # creates slight scroll based on player y velocity
                 mob.rect.y += max(abs(self.player.vel.y), 2)
+            
             for plat in self.platforms:
                 # creates slight scroll based on player y velocity
                 plat.rect.y += max(abs(self.player.vel.y), 2)
                 if plat.rect.top >= HEIGHT + 40:
                     plat.kill()
+                    self.score += 10
+            for mlat in self.mlatforms:
+                # creates slight scroll based on player y velocity
+                mlat.rect.y += max(abs(self.player.vel.y), 2)
+                if mlat.rect.top >= HEIGHT + 40:
+                    mlat.kill()
                     self.score += 10
         # if player hits a power up
         pow_hits = pg.sprite.spritecollide(self.player, self.powerups, True)
@@ -178,6 +213,7 @@ class Game:
                             random.randrange(-75, -30))
             # self.platforms.add(p)
             # self.all_sprites.add(p)
+        
     def events(self):
         for event in pg.event.get():
                 if event.type == pg.QUIT:

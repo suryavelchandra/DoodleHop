@@ -136,66 +136,49 @@ class Player(Sprite):
                 self.image = self.standing_frames[self.current_frame]
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
-
-class Platform(Sprite):
-    def __init__(self, game, x, y):
-        # allows layering in LayeredUpdates sprite group
-        self._layer = PLATFORM_LAYER
-        # add Platforms to game groups when instantiated
-        self.groups = game.all_sprites, game.platforms
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = self.game.spritesheet.get_image(213, 1662, 201, 100)
-        self.image.set_colorkey(BLACK)
-        '''leftovers from random rectangles before images'''
-        # self.image = pg.Surface((w,h))
-        # self.image.fill(WHITE)
-      nge(100) < POW_SPAWN_PCT:
-            Pow(self.game, self)
-             self.rect.centerx = choice([-100, WIDTH + 100])
-        self.rect_top = self.rect.top
-        self.vx = randrange(1, 4)
-        if self.rect.centerx > WIDTH:
-            self.vx *= -1
-        self.rect.y = randrange(HEIGHT/2)
-        self.vy = 0
-        self.dy = 0.5
-    def update(self):
-        self.rect.x += self.vx
-        self.vy += self.dy
-        self.rect_top = self.rect.top
-        if self.vy > 3 or  self.vy < -3:
-            self.dy *= -1
-        center = self.rect.center
-        if self.dy < 0:
-            self.image = self.image_up
-        else:
-            self.image = self.image_down
-        self.rect.center = center
-        self.rect_top = self.rect.top
-        self.rect.y += self.vy
-        if self.rect.left > WIDTH + 100 or self.rect.right < -100:
-            self.kill()
-
-    
-
-''' Created by Surya Chandra different types of platforms by creating more classes'''
-# class Moveplat(Sprite):
-#     def __init__(self, game, x, y):
+# class Platform(Sprite):
+#     def __init__(self, game, x, y, z):
 #         # allows layering in LayeredUpdates sprite group
 #         self._layer = PLATFORM_LAYER
 #         # add Platforms to game groups when instantiated
-#         self.groups = game.all_sprites, game.moveplats
+#         self.groups = game.all_sprites, game.platforms
 #         Sprite.__init__(self, self.groups)
 #         self.game = game
-#         self.image = self.game.spritesheet.get_image(0, 96, 380, 94)
+#         images = [self.game.spritesheet.get_image(0, 288, 380, 94), 
+#                   self.game.spritesheet.get_image(213, 1662, 201, 100)]
+#         self.image = random.choice(images)
 #         self.image.set_colorkey(BLACK)
 #         '''leftovers from random rectangles before images'''
 #         # self.image = pg.Surface((w,h))
 #         # self.image.fill(WHITE)
 #         self.rect = self.image.get_rect()
-#         self.rect.centerx = choice([-100, WIDTH + 100])
+#         self.rect.x = x
+#         self.rect.y = y
+#         self.ground_level = False
+#     def update(self):
+#         self.vx = z
+#         self.vy = 0
+    
+#         self.rect.x += self.vx
+#         self.rect.y += self.vy
+      
+# class Platform(Sprite):
+#     def __init__(self, game, x, y):
+#         # allows layering in LayeredUpdates sprite group
+#         self._layer = PLATFORM_LAYER
+#         # add Platforms to game groups when instantiated
+#         self.groups = game.all_sprites, game.platforms
+#         Sprite.__init__(self, self.groups)
+#         self.game = game
+#         self.image = self.game.spritesheet.get_image(213, 1662, 201, 100)
+#         self.image.set_colorkey(BLACK)
+#         '''leftovers from random rectangles before images'''
+#         # self.image = pg.Surface((w,h))
+#         # self.image.fill(WHITE
+#         self.rect = self.image.get.rect()
+#         self.rect.centerx = choice ([-100, WIDTH + 100])
 #         self.rect_top = self.rect.top
+    
 #         self.vx = randrange(1, 4)
 #         if self.rect.centerx > WIDTH:
 #             self.vx *= -1
@@ -219,6 +202,94 @@ class Platform(Sprite):
 #         if self.rect.left > WIDTH + 100 or self.rect.right < -100:
 #             self.kill()
 
+    
+
+''' Created by Surya Chandra different types of platforms by creating more classes'''
+
+       
+#             self.kill()
+
+class Platform(Sprite):
+    def __init__(self, game, x, y):
+        # allows layering in LayeredUpdates sprite group
+        self._layer = PLATFORM_LAYER
+        # add Platforms to game groups when instantiated
+        self.groups = game.all_sprites, game.platforms
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        images = [self.game.spritesheet.get_image(0, 288, 380, 94), 
+                  self.game.spritesheet.get_image(213, 1662, 201, 100)]
+        self.image = random.choice(images)
+        self.image.set_colorkey(BLACK)
+        '''leftovers from random rectangles before images'''
+        # self.image = pg.Surface((w,h))
+        # self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.ground_level = False
+        if random.randrange(100) < POW_SPAWN_PCT:
+            Pow(self.game, self)
+# class Mlatform(Sprite):
+#     def __init__(self, game, x, y):
+#         # allows layering in LayeredUpdates sprite group
+#         self._layer = MLATFORM_LAYER
+#         # add Platforms to game groups when instantiated
+#         self.groups = game.all_sprites, game.mlatforms
+#         Sprite.__init__(self, self.groups)
+#         self.game = game
+#         images = [self.game.spritesheet.get_image(0, 384, 380, 94), 
+#                   self.game.spritesheet.get_image(0, 1056, 380, 94)]
+#         self.image = random.choice(images)
+#         self.image.set_colorkey(BLACK)
+#         '''leftovers from random rectangles before images'''
+#         # self.image = pg.Surface((w,h))
+#         # self.image.fill(WHITE)
+#         self.rect = self.image.get_rect()
+#         self.rect.x = x
+#         self.rect.y = y
+#         self.ground_level = False
+#         self.speed = -2
+#         self.pos = vec(WIDTH / 2, HEIGHT / 2)
+#         if random.randrange(100) < POW_SPAWN_PCT:
+#             Pow(self.game, self)
+#     def update(self):
+#         if self.rect.top > HEIGHT * 2: 
+#             self.kill
+#             ''' mr cozort added animated clouds and made it so they 
+#             restart on the other side of the screen'''
+#         if self.pos.x > WIDTH + self.rect.width / 2:
+#             self.pos.x = 0 - self.rect.width / 2
+#         if self.pos.x < 0 - self.rect.width / 2:
+#             self.pos.x = WIDTH + self.rect.width / 2
+class Mlatform(Sprite):
+    def __init__(self, game, x, y):
+        # allows layering in LayeredUpdates sprite group
+        self._layer = MLATFORM_LAYER
+        # add Platforms to game groups when instantiated
+        self.groups = game.all_sprites, game.mlatforms
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        images = [self.game.spritesheet.get_image(0, 384, 380, 94), 
+                  self.game.spritesheet.get_image(0, 1056, 380, 94)]
+        self.image = random.choice(images)
+        self.image.set_colorkey(BLACK)
+        '''leftovers from random rectangles before images'''
+        # self.image = pg.Surface((w,h))
+        # self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = randrange(WIDTH - self.rect.width)
+        self.rect.y = randrange(-500, -50)
+        self.speed = randrange(1,3)
+    def update(self):
+        if self.rect.top > HEIGHT * 2: 
+            self.kill
+            ''' mr cozort added animated clouds and made it so they 
+            restart on the other side of the screen'''
+        self.rect.x += self.speed
+        if self.rect.x > WIDTH:
+            self.rect.x = -self.rect.width
+     
 class Pow(Sprite):
     def __init__(self, game, plat):
         # allows layering in LayeredUpdates sprite group

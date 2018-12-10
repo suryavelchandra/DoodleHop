@@ -24,6 +24,7 @@ POW_SPAWN_PCT = 7
 MOB_FREQ = 5000
 PLAYER_LAYER = 2
 PLATFORM_LAYER = 1
+MLATFORM_LAYER = 1
 POW_LAYER = 1
 MOB_LAYER = 2
 #SPRITES INT HE SAME LAYER CAN INTERACT WITH EACH OTHER (COLISONS)
@@ -42,3 +43,7 @@ PLATFORM_LIST = [(0, HEIGHT - 40),
                  (20, HEIGHT - 350),
                  (200, HEIGHT - 150),
                  (200, HEIGHT - 450)]
+MLATFORM_LIST = [(10, HEIGHT - 20),
+                 (30, HEIGHT - 500),
+                 (20, HEIGHT - 27)]
+                
