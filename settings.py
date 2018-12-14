@@ -1,4 +1,4 @@
-TITLE = "jumpy"
+TITLE = "DoodleHop"
 # screen dims
 WIDTH = 480
 HEIGHT = 600
@@ -8,7 +8,7 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0,0,0)
 REDDISH = (240,55,66)
-SKY_BLUE = (143, 185, 252)
+SKY_BLUE = (0, 0, 0)
 FONT_NAME = 'arial'
 SPRITESHEET = "spritesheet_jumper.png"
 # data files
@@ -17,7 +17,8 @@ HS_FILE = "highscore.txt"
 PLAYER_ACC = 0.5
 PLAYER_FRICTION = -0.12
 PLAYER_GRAV = 0.8
-PLAYER_JUMP = 20
+PLAYER_JUMP = 25
+PLAYER_SUPERJUMP = 300
 # game settings
 BOOST_POWER = 60
 POW_SPAWN_PCT = 7

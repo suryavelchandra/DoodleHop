@@ -5,8 +5,22 @@
 '''
 Curious, Creative, Tenacious(requires hopefulness)
 
-Game ideas:
-Walls closing in on player
+****Game ideas:
+moving platforms 
+disappearing platforms 
+new music
+cheat code that iimeadiatly launches you up 
+****cosmentics:
+change player image 
+****Gameplay:
+W instead of spacebar for jump
+****BUGS:
+cant jump on moving platform 
+    -fixed
+player doesnt move with moving platforms
+platfroms spawn too frequently and on top of wach other.
+
+
 
 '''
 import random
@@ -26,7 +40,7 @@ class Game:
         # init sound mixer
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
-        pg.display.set_caption("jumpy")
+        pg.display.set_caption("DoodleHop")
         self.clock = pg.time.Clock()
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
@@ -62,7 +76,7 @@ class Game:
     def new(self):
         self.score = 0
         # add all sprites to the pg group
-        # below no longer needed - using LayeredUpdate group
+        # below no longer needed - using LayerewdUpdate group
         # self.all_sprites = pg.sprite.Group()
         self.all_sprites = pg.sprite.LayeredUpdates()
         # create platforms group
@@ -70,7 +84,7 @@ class Game:
         # add powerups
         self.powerups = pg.sprite.Group()
 
-        # create Moving platforms group
+        # create Moving platforms group (repurpusing as much of the existing platform code as possible)
         self.mlatforms = pg.sprite.Group()
         
         self.mob_timer = 0
@@ -89,8 +103,9 @@ class Game:
             # self.all_sprites.add(p)
             # self.platforms.add(p)
         
+        #moving platform list
         for mlat in MLATFORM_LIST:
-           
+        #spawning moving platforms
             Mlatform(self, *mlat)
             # no longer needed because we pass in Sprite lib file
             # self.all_sprites.add(p)
@@ -151,20 +166,23 @@ class Game:
                         self.player.pos.y = find_lowest.rect.top
                         self.player.vel.y = 0
                         self.player.jumping = False
-            hits = pg.sprite.spritecollide(self.player, self.mlatforms, False)
-            if hits:
+                        self.player.superjumping = False
+            #using code from platforms for moving platforms 
+            mhits = pg.sprite.spritecollide(self.player, self.mlatforms, False)
+            if mhits:
                 # set var to be current hit in list to find which to 'pop' to when two or more collide with player
-                find_lowest = hits[0]
-                for hit in hits:
-                    if hit.rect.bottom > find_lowest.rect.bottom:
-                        print("hit rect bottom " + str(hit.rect.bottom))
-                        find_lowest = hit
+                find_lowest = mhits[0]
+                for mhit in mhits:
+                    if mhit.rect.bottom > find_lowest.rect.bottom:
+                        print("hit rect bottom " + str(mhit.rect.bottom))
+                        find_lowest = mhit
                 # fall if center is off platform
                 if self.player.pos.x < find_lowest.rect.right + 10 and self.player.pos.x > find_lowest.rect.left - 10:
                     if self.player.pos.y < find_lowest.rect.centery:
                         self.player.pos.y = find_lowest.rect.top
                         self.player.vel.y = 0
-                        self.player.jumping = False    
+                        self.player.jumping = False   
+                        self.player.superjumping = False 
                 # scroll plats with player
         if self.player.rect.top <= HEIGHT / 4:
             # creates slight scroll at the top based on player y velocity
@@ -193,6 +211,7 @@ class Game:
                 self.boost_sound.play()
                 self.player.vel.y = -BOOST_POWER
                 self.player.jumping = False
+                self.player.superjumping = False
         
         # Die!
         if self.player.rect.bottom > HEIGHT:
@@ -213,6 +232,19 @@ class Game:
                             random.randrange(-75, -30))
             # self.platforms.add(p)
             # self.all_sprites.add(p)
+        if len(self.mlatforms) == 0:
+            self.playing = False
+        # generate new random moving platforms
+        while len(self.mlatforms) < 6:
+            width = random.randrange(50, 100)
+            # changed due to passing into groups through sprites lib file
+            # p = Platform(self, random.randrange(0,WIDTH-width), 
+            #                 random.randrange(-75, -30))
+            Mlatform(self, random.randrange(0,WIDTH-width), 
+                            random.randrange(-80, -30))
+            # self.platforms.add(p)
+            # self.all_sprites.add(p)
+        
         
     def events(self):
         for event in pg.event.get():
@@ -226,6 +258,13 @@ class Game:
                 if event.type == pg.KEYUP:
                     if event.key == pg.K_w:                     # cuts the jump short if the space bar is released
                         self.player.jump_cut()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_j and pg.K_SPACE:
+                        self.player.superjump()
+                if event.type == pg.KEYUP:
+                    if event.key ==  pg.K_j and pg.K_SPACE:
+                        self.player.superjump_cut()
+
     def draw(self):
         self.screen.fill(SKY_BLUE)
         self.all_sprites.draw(self.screen)
@@ -248,7 +287,7 @@ class Game:
         # game splash screen
         self.screen.fill(BLACK)
         self.draw_text(TITLE, 48, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text("WASD to move, Space to jump", 22, WHITE, WIDTH/2, HEIGHT/2)
+        self.draw_text("WASD to move", 22, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text("Press any key to play...", 22, WHITE, WIDTH / 2, HEIGHT * 3/4)
         self.draw_text("High score " + str(self.highscore), 22, WHITE, WIDTH / 2, 15)
         pg.display.flip()
@@ -260,7 +299,7 @@ class Game:
             return
         self.screen.fill(BLACK)
         self.draw_text(TITLE, 48, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text("WASD to move, Space to jump", 22, WHITE, WIDTH/2, HEIGHT/2)
+        self.draw_text("WASD to move", 22, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text("Press any key to play...", 22, WHITE, WIDTH / 2, HEIGHT * 3/4)
         self.draw_text("High score " + str(self.highscore), 22, WHITE, WIDTH / 2, HEIGHT/2 + 40)
         if self.score > self.highscore:

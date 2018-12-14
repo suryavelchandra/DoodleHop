@@ -32,6 +32,8 @@ class Player(Sprite):
         self.game = game
         self.walking = False
         self.jumping = False
+        #cheatcode below
+        self.superjumping = False
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
@@ -62,6 +64,8 @@ class Player(Sprite):
             self.walk_frames_l.append(pg.transform.flip(frame, True, False))
         self.jump_frame = self.game.spritesheet.get_image(382, 763, 150, 181)
         self.jump_frame.set_colorkey(BLACK)
+        self.superjump_frame = self.game.spritesheet.get_image(382, 763, 150, 181)
+        self.superjump_frame.set_colorkey(BLACK)
     def update(self):
         self.animate()
         self.acc = vec(0, PLAYER_GRAV)
@@ -70,9 +74,11 @@ class Player(Sprite):
 
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
-            self.acc.x =  -PLAYER_ACC
+            self.acc.x = -PLAYER_ACC
         if keys[pg.K_d]:
             self.acc.x = PLAYER_ACC
+       
+            
         # set player friction
         self.acc.x += self.vel.x * PLAYER_FRICTION
         # equations of motion
@@ -96,16 +102,56 @@ class Player(Sprite):
         print("jump is working")
         # check pixel below
         self.rect.y += 2
+        mhits = pg.sprite.spritecollide(self, self.game.mlatforms, False)
+      
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         # adjust based on checked pixel
         self.rect.y -= 2
-        # only allow jumping if player is on platform
+        # only allow jumping if player is on platform or mplatform
+        if mhits and not self.jumping:
+            # play sound only when space bar is hit and while not jumping
+            self.game.jump_sound[choice([0,1])].play()
+            # tell the program that player is currently jumping
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
+            print(self.acc.y)
+
         if hits and not self.jumping:
             # play sound only when space bar is hit and while not jumping
             self.game.jump_sound[choice([0,1])].play()
             # tell the program that player is currently jumping
             self.jumping = True
             self.vel.y = -PLAYER_JUMP
+            print(self.acc.y)
+    def superjump_cut(self):
+        if self.superjumping:
+            if self.vel.y < -5:
+                self.vel.y = -5
+    #superjump = cheat to be really good at the game.
+    def superjump(self):
+        print("superjump cheat is working")
+        # check pixel below
+        self.rect.y += 2
+        mhits = pg.sprite.spritecollide(self, self.game.mlatforms, False)
+      
+        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
+        # adjust based on checked pixel
+        self.rect.y -= 2
+        # only allow jumping if player is on platform or mplatform
+        if mhits and not self.superjumping:
+            # play sound only when space bar is hit and while not jumping
+            self.game.jump_sound[choice([0,1])].play()
+            # tell the program that player is currently jumping
+            self.superjumping = True
+            self.vel.y = -PLAYER_SUPERJUMP
+            print(self.acc.y)
+
+        if hits and not self.superjumping:
+            # play sound only when space bar is hit and while not jumping
+            self.game.jump_sound[choice([0,1])].play()
+            # tell the program that player is currently jumping
+            self.superjumping = True
+            self.vel.y = -PLAYER_SUPERJUMP
             print(self.acc.y)
     def animate(self):
         # gets time in miliseconds
@@ -126,7 +172,7 @@ class Player(Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         # checks state
-        if not self.jumping and not self.walking:
+        if not self.jumping and not self.walking and self.superjumping:
             # gets current delta time and checks against 200 miliseconds
             if now - self.last_update > 200:
                 self.last_update = now
@@ -209,27 +255,7 @@ class Player(Sprite):
        
 #             self.kill()
 
-class Platform(Sprite):
-    def __init__(self, game, x, y):
-        # allows layering in LayeredUpdates sprite group
-        self._layer = PLATFORM_LAYER
-        # add Platforms to game groups when instantiated
-        self.groups = game.all_sprites, game.platforms
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        images = [self.game.spritesheet.get_image(0, 288, 380, 94), 
-                  self.game.spritesheet.get_image(213, 1662, 201, 100)]
-        self.image = random.choice(images)
-        self.image.set_colorkey(BLACK)
-        '''leftovers from random rectangles before images'''
-        # self.image = pg.Surface((w,h))
-        # self.image.fill(WHITE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.ground_level = False
-        if random.randrange(100) < POW_SPAWN_PCT:
-            Pow(self.game, self)
+
 # class Mlatform(Sprite):
 #     def __init__(self, game, x, y):
 #         # allows layering in LayeredUpdates sprite group
@@ -262,6 +288,28 @@ class Platform(Sprite):
 #             self.pos.x = 0 - self.rect.width / 2
 #         if self.pos.x < 0 - self.rect.width / 2:
 #             self.pos.x = WIDTH + self.rect.width / 2
+class Platform(Sprite):
+    def __init__(self, game, x, y):
+        # allows layering in LayeredUpdates sprite group
+        self._layer = PLATFORM_LAYER
+        # add Platforms to game groups when instantiated
+        self.groups = game.all_sprites, game.platforms
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        images = [self.game.spritesheet.get_image(0, 288, 380, 94), 
+                  self.game.spritesheet.get_image(213, 1662, 201, 100)]
+        self.image = random.choice(images)
+        self.image.set_colorkey(BLACK)
+        '''leftovers from random rectangles before images'''
+        # self.image = pg.Surface((w,h))
+        # self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.ground_level = False
+        if random.randrange(100) < POW_SPAWN_PCT:
+            Pow(self.game, self)
+# new class for moving platforms 
 class Mlatform(Sprite):
     def __init__(self, game, x, y):
         # allows layering in LayeredUpdates sprite group
@@ -280,12 +328,13 @@ class Mlatform(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = randrange(WIDTH - self.rect.width)
         self.rect.y = randrange(-500, -50)
+        #making platforms spawn going either right or left
         self.speed = randrange(1,3)
+        self.ground_level = False
     def update(self):
         if self.rect.top > HEIGHT * 2: 
             self.kill
-            ''' mr cozort added animated clouds and made it so they 
-            restart on the other side of the screen'''
+        
         self.rect.x += self.speed
         if self.rect.x > WIDTH:
             self.rect.x = -self.rect.width
